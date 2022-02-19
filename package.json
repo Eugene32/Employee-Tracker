@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/Eugene32/Employee-Tracker#readme",
   "dependencies": {
+    "console.table": "^0.10.0",
+    "fs": "^0.0.1-security",
     "inquirer": "^8.2.0",
     "mysql2": "^2.3.3"
   }
