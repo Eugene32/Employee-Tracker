@@ -103,7 +103,7 @@ const queryDepartments = () => {
      FROM department;`;
     connection.query(sql, (err, rows) => {
         if (err) throw err;
-        console.log('\r\n');
+        console.log('\r\n\r\n\r\n\r\n');
         console.table(rows);
         console.log('Press UP or DOWM key to continue.....');
     });
@@ -115,7 +115,7 @@ const queryRoles = () => {
     FROM role;`;
     connection.query(sql, (err, roles) => {
         if (err) throw err;
-        console.log('\r\n');
+        console.log('\r\n\r\n\r\n\r\n');
         console.table(roles);
         console.log('Press UP or DOWM key to continue.....');
 
@@ -137,7 +137,7 @@ const queryEmployees = () => {
     LEFT JOIN employee manager ON employee.manager_id = manager.id;`;
     connection.query(sql, (err, employees) => {
         if (err) throw err;
-        console.log('\r\n');
+        console.log('\r\n\r\n\r\n\r\n');
         console.table(employees);
         console.log('Press UP or DOWM key to continue.....');
     });
@@ -149,7 +149,7 @@ async function main() {
     switch (mainMenuChoice.mainMenu) {
         case 'View All Departments':
             const sqlDept = await queryDepartments();
-            process.stdout.write("\u001b[2J\u001b[0;0H");
+           // process.stdout.write("\u001b[2J\u001b[0;0H");
             main();
             break;
 
