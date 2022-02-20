@@ -98,24 +98,24 @@ addEmployee = [
 ]
 
 const queryDepartments = () => {
-    const sql = `SELECT department.id AS ID,
+    const query = `SELECT department.id AS ID,
      department.name AS Department
      FROM department;`;
-    connection.query(sql, (err, rows) => {
+    connection.query(query, (err, rows) => {
         if (err) throw err;
-        console.log('\r\n\r\n\r\n\r\n');
+        console.log('\r\n\r\n\r\n\r\n');  // Provides gap between displays
         console.table(rows);
         console.log('Press UP or DOWM key to continue.....');
     });
 };
 
 const queryRoles = () => {
-    const sql = `SELECT role.id AS ID,
+    const query = `SELECT role.id AS ID,
     role.title AS Title
     FROM role;`;
-    connection.query(sql, (err, roles) => {
+    connection.query(query, (err, roles) => {
         if (err) throw err;
-        console.log('\r\n\r\n\r\n\r\n');
+        console.log('\r\n\r\n\r\n\r\n');  // Provides gap between displays
         console.table(roles);
         console.log('Press UP or DOWM key to continue.....');
 
@@ -125,7 +125,7 @@ const queryRoles = () => {
 
 
 const queryEmployees = () => {
-    const sql = `SELECT employee.id AS ID, 
+    const query = `SELECT employee.id AS ID, 
     CONCAT (employee.first_name, " ", employee.last_name) AS Name,
     role.title AS Title, 
     department.name AS Department,
@@ -135,9 +135,9 @@ const queryEmployees = () => {
     LEFT JOIN role ON employee.role_id = role.id
     LEFT JOIN department ON role.department_id = department.id
     LEFT JOIN employee manager ON employee.manager_id = manager.id;`;
-    connection.query(sql, (err, employees) => {
+    connection.query(query, (err, employees) => {
         if (err) throw err;
-        console.log('\r\n\r\n\r\n\r\n');
+        console.log('\r\n\r\n\r\n\r\n');  // Provides gap between displays
         console.table(employees);
         console.log('Press UP or DOWM key to continue.....');
     });
