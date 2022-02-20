@@ -1,6 +1,38 @@
 const fs = require('fs');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
+require('dotenv').config();
+const mysql = require('mysql2');
+
+
+// const connection = mysql.createConnection(
+//     {
+//         host: 'localhost',
+//         user: process.env.USER_DB,
+//         password: process.env.PASSWORD_DB,
+//         database: process.env.NAME_DB
+//     },
+//     console.log(`Connected to the company_db database.`)
+// );
+
+
+var connection = mysql.createConnection({
+    host: 'localhost',
+    user: process.env.DB_USER,
+    password: process.env.DB_PWD,
+    database: process.env.DB_NAME
+});
+
+connection.connect(function(err) {
+  if (err) {
+    console.error('error connecting: ' + err.stack);
+    return;
+  }
+
+  console.log('connected as id ' + connection.threadId);
+});
+
+
 
 mainMenu = [
     {
@@ -64,53 +96,53 @@ addEmployee = [
 
 ]
 
+ const queryDepartments = () => {
+     const sql = `SELECT department.id AS ID,
+     department.name AS Department
+     FROM department;`;
+     connection.query(sql, (err, rows) => {
+         if (err) throw err;
+         console.table(rows);
+        main();
+     });
+ };
+
 
 async function main() {
-    const mainMenuChoice = await inquirer.prompt(mainMenu);
+    let mainMenuChoice = await inquirer.prompt(mainMenu);
 
     switch (mainMenuChoice.mainMenu) {
         case 'View All Departments':
-            //code block
-
+             const sql = await queryDepartments();
+            
             break;
 
         case 'View All Roles':
             // code block
             break;
         case 'View All Employees':
-            // code block
+            // code blockg
             break;
         case 'Add a Department':
             // code block
-            const newDept = await inquirer.prompt(addDepartment);
-            console.log(newDept);
+             const newDept = await inquirer.prompt(addDepartment);
+             console.log(newDept);
             break;
         case 'Add a Role':
             // code block
-            const newRole = await inquirer.prompt(addRole);
-            console.log(newRole);
+             const newRole = await inquirer.prompt(addRole);
+             console.log(newRole);
             break;
         case 'Add an Employee':
             // code block
-            const newEmployee = await inquirer.prompt(addEmployee);
-            console.log(newEmployee);
+             const newEmployee = await inquirer.prompt(addEmployee);
+             console.log(newEmployee);
             break;
         case 'Update an Employee Role':
             // code block
             break;
         default:
-        // code block
-        // let str = 'STRING';
-
-        // console.table([
-        //     {
-        //       name: str,
-        //       age: 10
-        //     }, {
-        //       name: 'bar',
-        //       age: 20
-        //     }
-        //   ]);
+            connection.end();
     }
 
 }

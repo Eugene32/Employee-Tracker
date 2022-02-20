@@ -22,11 +22,11 @@ VALUES
   -- Insert employee items --
 INSERT INTO employee (id, first_name, last_name, role_id, manager_id)
 VALUES
-     ( 1, "Roy", "Gibson", 1, 0 ),
+    ( 1, "Roy", "Gibson", 1, NULL ),
     ( 2, "Raul", "Genson", 2, 1),
-    ( 3, "Razer", "Hammock", 6, 0 ),
+    ( 3, "Razer", "Hammock", 6, NULL),
     ( 4, "Kenneth", "Sy", 3, 3),
-    ( 5, "Kenneth", "Do", 3, 3),
-     ( 6, "Kenneth", "Tok", 3, 3),
-     ( 7, "Kenneth", "Wok", 3, 3),
-     ( 8, "Wei", "Tulow", 2, 1);
+    ( 5, "Ken", "Do", 3, 3),
+    ( 6, "Kenn", "Tok", 3, 3),
+    ( 7, "Kane", "Wok", 3, 3),
+    ( 8, "Wei", "Tulow", 2, 1);
