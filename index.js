@@ -3,6 +3,8 @@ const inquirer = require('inquirer');
 const cTable = require('console.table');
 require('dotenv').config();
 const mysql = require('mysql2');
+const Employee = require('./class/Employee');
+
 
 
 // const connection = mysql.createConnection(
@@ -50,7 +52,16 @@ addDepartment = [
         type: 'input',
         name: 'department',
         message: 'Enter NEW deparment name: ',
+        validate: input => {
+            if (input) {
+                return true;
+            } else {
+                console.log("Please enter department name.");
+                return false;
+            }
+        }
     }
+
 ]
 
 addRole = [
@@ -73,7 +84,7 @@ addRole = [
 
 ]
 
-addEmployee = [
+addEmployeeName = [
     {
         type: 'input',
         name: 'fname',
@@ -83,16 +94,24 @@ addEmployee = [
         type: 'input',
         name: 'lname',
         message: 'Enter last name: ',
-    },
+    }
+]
+
+addEmployeeRole = [
     {
-        type: 'input',
+        type: 'list',
         name: 'role',
         message: "Enter new role: ",
-    },
+        // choices: roles
+    }
+]
+
+addEmployeeManager = [
     {
-        type: 'input',
+        type: 'list',
         name: 'manager',
         message: "Enter manager's name: ",
+        //choices: managers
     }
 
 ]
@@ -122,8 +141,6 @@ const queryRoles = () => {
     });
 };
 
-
-
 const queryEmployees = () => {
     const query = `SELECT employee.id AS ID, 
     CONCAT (employee.first_name, " ", employee.last_name) AS Name,
@@ -148,38 +165,59 @@ async function main() {
 
     switch (mainMenuChoice.mainMenu) {
         case 'View All Departments':
-            const sqlDept = await queryDepartments();
-           // process.stdout.write("\u001b[2J\u001b[0;0H");
+
+            const sqlDept = queryDepartments();
             main();
             break;
 
         case 'View All Roles':
-            const sqlRoles = await queryRoles();
-            process.stdout.write("\u001b[2J\u001b[0;0H");
+
+            const sqlRoles = queryRoles();
+
             main();
             break;
+
         case 'View All Employees':
+
             const sqlEmployees = await queryEmployees();
-            process.stdout.write("\u001b[2J\u001b[0;0H");
+
             main();
             break;
+
         case 'Add a Department':
-            // code block
+
             const newDept = await inquirer.prompt(addDepartment);
+            const sql = `INSERT INTO department (name) VALUES (?);`;
+            // const
+            connection.query(sql, departmentName, (err, data) => {
+                if (err) throw err;
+                console.log(`New department created!`);
+                viewAllDepartments();
+            });
+
             console.log(newDept);
+            main();
             break;
+
         case 'Add a Role':
-            // code block
+
             const newRole = await inquirer.prompt(addRole);
+
             console.log(newRole);
+            main();
             break;
+
         case 'Add an Employee':
-            // code block
-            const newEmployee = await inquirer.prompt(addEmployee);
-            console.log(newEmployee);
+
+            //const employeeName = await inquirer.prompt(addEmployeeName);
+
+            //const newEmployee = new Employee(employeeName.fname, employeeName.lname, employee.role, employee.manager);
+            //console.log(newEmployee);
+            main();
             break;
+
         case 'Update an Employee Role':
-            // code block
+            main();
             break;
         default:
             connection.end();
