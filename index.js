@@ -77,6 +77,23 @@ addRole = [
     }
 ]
 
+const chooseDept = (deparment) => {
+    console.log('This had been called');
+    inquirer.prompt([
+        {
+            type: 'list',
+            name: 'department',
+            message: 'Select department:  ',
+            choices: department
+        }
+    ])
+        .then((data) => {
+            return data.name;
+        })
+
+
+}
+
 addEmployeeName = [
     {
         type: 'input',
@@ -192,6 +209,50 @@ async function main() {
         case 'Add a Role':
 
             const newRole = await inquirer.prompt(addRole);
+            //newRole.title    
+            //newRole.salary
+            console.log(newRole);
+            console.log(newRole);
+            console.log(newRole);
+            console.log(newRole);
+            console.log(newRole);
+            console.log(newRole);
+            console.log(newRole);
+            console.log(newRole);
+            console.log(newRole);
+            
+            const deptQuery = `SELECT id, name FROM department`;
+            connection.query(deptQuery, async (err, data) => {
+                if (err) throw err;
+                console.log('The data is ', data);
+                let department = data.map(function (element) {return `${element.id} ${element.name}`;})
+                console.log('The department is ', department);
+                inquirer.prompt([
+                    {
+                        type: "list",
+                        name: "departmentid",
+                        message: "Select department: ",
+                        choices: department
+                    }])
+                    .then((data) => {
+                                        
+                        const string = data.departmentid;
+                        console.log(string);
+                        const array = string.split(' ');
+                        let department_id = array[0];
+                  
+
+                        const sql = `INSERT INTO role (title, salary, department_id)
+                        VALUES (?, ?, ?)`;
+                        connection.query(sql, params, (err, rows) => {
+                            if (err) throw err;
+                            console.log(`New role created!`);
+                            queryRoles();
+                        });
+                    });
+
+            });
+
 
             console.log(newRole);
             main();
