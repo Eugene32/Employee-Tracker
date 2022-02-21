@@ -67,21 +67,14 @@ addDepartment = [
 addRole = [
     {
         type: 'input',
-        name: 'name',
-        message: 'Enter name: ',
+        name: 'title',
+        message: 'Enter new title: ',
     },
     {
         type: 'input',
         name: 'salary',
         message: 'Enter salary: ',
-    },
-    {
-        type: 'input',
-        name: 'role',
-        message: "Enter new role: ",
-
     }
-
 ]
 
 addEmployeeName = [
@@ -122,7 +115,7 @@ const queryDepartments = () => {
      FROM department;`;
     connection.query(query, (err, rows) => {
         if (err) throw err;
-        console.log('\r\n\r\n\r\n\r\n');  // Provides gap between displays
+        console.log('\r\n\r\n\r\n\r\n\n\n\n\n\n\n');  // Provides gap between displays
         console.table(rows);
         console.log('Press UP or DOWM key to continue.....');
     });
@@ -166,21 +159,19 @@ async function main() {
     switch (mainMenuChoice.mainMenu) {
         case 'View All Departments':
 
-            const sqlDept = queryDepartments();
+            queryDepartments();
             main();
             break;
 
         case 'View All Roles':
 
-            const sqlRoles = queryRoles();
-
+            queryRoles();
             main();
             break;
 
         case 'View All Employees':
 
-            const sqlEmployees = await queryEmployees();
-
+            queryEmployees();
             main();
             break;
 
@@ -188,11 +179,10 @@ async function main() {
 
             const newDept = await inquirer.prompt(addDepartment);
             const sql = `INSERT INTO department (name) VALUES (?);`;
-            // const
-            connection.query(sql, departmentName, (err, data) => {
+            connection.query(sql, newDept.department, (err, data) => {
                 if (err) throw err;
                 console.log(`New department created!`);
-                viewAllDepartments();
+                queryDepartments();
             });
 
             console.log(newDept);
@@ -220,6 +210,7 @@ async function main() {
             main();
             break;
         default:
+            console.log('\r\n\r\n\r\n\r\n\n\n\n\n\n\n')
             connection.end();
     }
 
