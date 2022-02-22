@@ -5,19 +5,6 @@ require('dotenv').config();
 const mysql = require('mysql2');
 const Employee = require('./class/Employee');
 
-
-
-// const connection = mysql.createConnection(
-//     {
-//         host: 'localhost',
-//         user: process.env.USER_DB,
-//         password: process.env.PASSWORD_DB,
-//         database: process.env.NAME_DB
-//     },
-//     console.log(`Connected to the company_db database.`)
-// );
-
-
 var connection = mysql.createConnection({
     host: 'localhost',
     user: process.env.DB_USER,
@@ -69,41 +56,57 @@ addRole = [
         type: 'input',
         name: 'title',
         message: 'Enter new title: ',
+        validate: input => {
+            if (input) {
+                return true;
+            } else {
+                console.log("Please enter title!");
+                return false;
+            }
+        }
     },
     {
         type: 'input',
         name: 'salary',
         message: 'Enter salary: ',
+        validate: input => {
+            if (input) {
+                return true;
+            } else {
+                console.log("Please enter salary!");
+                return false;
+            }
+        }
     }
 ]
 
-const chooseDept = (deparment) => {
-    console.log('This had been called');
-    inquirer.prompt([
-        {
-            type: 'list',
-            name: 'department',
-            message: 'Select department:  ',
-            choices: department
-        }
-    ])
-        .then((data) => {
-            return data.name;
-        })
-
-
-}
 
 addEmployeeName = [
     {
         type: 'input',
         name: 'fname',
         message: 'Enter first name: ',
+        validate: input => {
+            if (input) {
+                return true;
+            } else {
+                console.log("Please enter first name!");
+                return false;
+            }
+        }
     },
     {
         type: 'input',
         name: 'lname',
         message: 'Enter last name: ',
+        validate: input => {
+            if (input) {
+                return true;
+            } else {
+                console.log("Please enter last name!");
+                return false;
+            }
+        }
     }
 ]
 
@@ -127,6 +130,7 @@ addEmployeeManager = [
 ]
 
 const queryDepartments = () => {
+    console.log('\r\n\r\n\r\n\r\n');  // Provides gap between displays
     const query = `SELECT department.id AS ID,
      department.name AS Department
      FROM department;`;
@@ -152,6 +156,7 @@ const queryRoles = () => {
 };
 
 const queryEmployees = () => {
+    console.log('\r\n\r\n\r\n\r\n');  // Provides gap between displays
     const query = `SELECT employee.id AS ID, 
     CONCAT (employee.first_name, " ", employee.last_name) AS Name,
     role.title AS Title, 
@@ -169,6 +174,47 @@ const queryEmployees = () => {
         console.log('Press UP or DOWM key to continue.....');
     });
 };
+
+
+async function getRole() {
+
+    const newRole = await inquirer.prompt(addRole);
+    let arg = [newRole.title, newRole.salary];
+    const deptQuery = `SELECT id, name FROM department`;
+    connection.query(deptQuery, async (err, data) => {
+        if (err) throw err;
+        console.log('The data is ', data);
+        let department = data.map(function (element) { return `${element.id} ${element.name}`; })
+        console.log('The department is ', department);
+        inquirer.prompt([
+            {
+                type: "list",
+                name: "departmentid",
+                message: "Select department: ",
+                choices: department
+            }])
+            .then((data) => {
+
+                const string = data.departmentid;
+                console.log(string);
+                const array = string.split(' ');
+                let department_id = array[0];
+                arg.push(department_id);
+                console.log(arg);
+
+
+                const query = `INSERT INTO role (title, salary, department_id)
+                VALUES (?, ?, ?)`;
+                connection.query(query, arg, (err, rows) => {
+                    if (err) throw err;
+                    console.log(`New role created!`);
+                    queryRoles();
+                });
+            });
+
+    });
+
+}
 
 async function main() {
     let mainMenuChoice = await inquirer.prompt(mainMenu);
@@ -195,72 +241,54 @@ async function main() {
         case 'Add a Department':
 
             const newDept = await inquirer.prompt(addDepartment);
-            const sql = `INSERT INTO department (name) VALUES (?);`;
-            connection.query(sql, newDept.department, (err, data) => {
+            const deptQuery = `INSERT INTO department (name) VALUES (?);`;
+            connection.query(deptQuery, newDept.department, (err, data) => {
                 if (err) throw err;
                 console.log(`New department created!`);
                 queryDepartments();
             });
 
-            console.log(newDept);
             main();
             break;
 
         case 'Add a Role':
 
-            const newRole = await inquirer.prompt(addRole);
-            //newRole.title    
-            //newRole.salary
-            console.log(newRole);
-            console.log(newRole);
-            console.log(newRole);
-            console.log(newRole);
-            console.log(newRole);
-            console.log(newRole);
-            console.log(newRole);
-            console.log(newRole);
-            console.log(newRole);
-            
-            const deptQuery = `SELECT id, name FROM department`;
-            connection.query(deptQuery, async (err, data) => {
-                if (err) throw err;
-                console.log('The data is ', data);
-                let department = data.map(function (element) {return `${element.id} ${element.name}`;})
-                console.log('The department is ', department);
-                inquirer.prompt([
-                    {
-                        type: "list",
-                        name: "departmentid",
-                        message: "Select department: ",
-                        choices: department
-                    }])
-                    .then((data) => {
-                                        
-                        const string = data.departmentid;
-                        console.log(string);
-                        const array = string.split(' ');
-                        let department_id = array[0];
-                  
-
-                        const sql = `INSERT INTO role (title, salary, department_id)
-                        VALUES (?, ?, ?)`;
-                        connection.query(sql, params, (err, rows) => {
-                            if (err) throw err;
-                            console.log(`New role created!`);
-                            queryRoles();
-                        });
-                    });
-
-            });
-
-
-            console.log(newRole);
+            const add_Role = await getRole();
             main();
             break;
 
         case 'Add an Employee':
 
-            //const employeeName = await inquirer.prompt(addEmployeeName);
+            const employeeName = await inquirer.prompt(addEmployeeName);
+            let params = [employeeName.fname, employeeName.lname];
+
+            console.log(params);
+
+            const roleQuery = 'SELECT * FROM role';
+            connection.query(roleQuery, (err, data) => {
+                if (err) throw err;
+                const roles = data.map(({ title, id }) => ({ name: title, value: id }));
+                // roles as a list will be used as a selection for the roleid in then inquirer
+                inquirer.prompt([
+                    {
+                        type: "list",
+                        name: "roleid",
+                        message: "Select corresponding role:  ",
+                        choices: roles
+                    }
+                ]).then((data) => {
+                    params.push(data.roleid);
+                    console.log(params);
+                });
+
+
+
+
+
+            });
+
+
+
 
             //const newEmployee = new Employee(employeeName.fname, employeeName.lname, employee.role, employee.manager);
             //console.log(newEmployee);
