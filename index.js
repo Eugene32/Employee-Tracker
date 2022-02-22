@@ -22,7 +22,6 @@ connection.connect(function (err) {
 });
 
 
-
 mainMenu = [
 
     {
@@ -110,43 +109,24 @@ addEmployeeName = [
     }
 ]
 
-addEmployeeRole = [
-    {
-        type: 'list',
-        name: 'role',
-        message: "Enter new role: ",
-        // choices: roles
-    }
-]
-
-addEmployeeManager = [
-    {
-        type: 'list',
-        name: 'manager',
-        message: "Enter manager's name: ",
-        //choices: managers
-    }
-
-]
-
-const queryDepartments = () => {
-    console.log('\r\n\r\n\r\n\r\n');  // Provides gap between displays
+const queryDepartments = async () => {
+    console.log('\r\n');  // Provides gap between displays
     const query = `SELECT department.id AS ID,
      department.name AS Department
      FROM department;`;
-    connection.query(query, (err, rows) => {
+    connection.query(query, async (err, rows) => {
         if (err) throw err;
-        console.log('\r\n\r\n\r\n\r\n\n\n\n\n\n\n');  // Provides gap between displays
+        console.log('\r\n');  // Provides gap between displays
         console.table(rows);
         console.log('Press UP or DOWM key to continue.....');
     });
 };
 
-const queryRoles = () => {
+const queryRoles = async () => {
     const query = `SELECT role.id AS ID,
     role.title AS Title
     FROM role;`;
-    connection.query(query, (err, roles) => {
+    connection.query(query, async (err, roles) => {
         if (err) throw err;
         console.log('\r\n\r\n\r\n\r\n');  // Provides gap between displays
         console.table(roles);
@@ -155,8 +135,8 @@ const queryRoles = () => {
     });
 };
 
-const queryEmployees = () => {
-    console.log('\r\n\r\n\r\n\r\n');  // Provides gap between displays
+const queryEmployees = async () => {
+    console.log('\r\n');  // Provides gap between displays
     const query = `SELECT employee.id AS ID, 
     CONCAT (employee.first_name, " ", employee.last_name) AS Name,
     role.title AS Title, 
@@ -167,14 +147,25 @@ const queryEmployees = () => {
     LEFT JOIN role ON employee.role_id = role.id
     LEFT JOIN department ON role.department_id = department.id
     LEFT JOIN employee manager ON employee.manager_id = manager.id;`;
-    connection.query(query, (err, employees) => {
+    connection.query(query, async (err, employees) => {
         if (err) throw err;
-        console.log('\r\n\r\n\r\n\r\n');  // Provides gap between displays
+        console.log('\r\n');  // Provides gap between displays
         console.table(employees);
         console.log('Press UP or DOWM key to continue.....');
+
     });
+
 };
 
+async function getDepartment() {
+    const newDept = await inquirer.prompt(addDepartment);
+    const deptQuery = `INSERT INTO department (name) VALUES (?);`;
+    connection.query(deptQuery, newDept.department, async (err, data) => {
+        if (err) throw err;
+        console.log(`New department created!`);
+        queryDepartments();
+    });
+}
 
 async function getRole() {
 
@@ -205,7 +196,7 @@ async function getRole() {
 
                 const query = `INSERT INTO role (title, salary, department_id)
                 VALUES (?, ?, ?)`;
-                connection.query(query, arg, (err, rows) => {
+                connection.query(query, arg, async (err, rows) => {
                     if (err) throw err;
                     console.log(`New role created!`);
                     queryRoles();
@@ -216,7 +207,77 @@ async function getRole() {
 
 }
 
+
+async function getEmployee() {
+
+    const employeeName = await inquirer.prompt(addEmployeeName);
+    const arg = [employeeName.fname, employeeName.lname];
+
+    const roleQuery = 'SELECT * FROM role';
+    connection.query(roleQuery, async (err, data) => {
+        if (err) throw err;
+        const roles = data.map(({ title, id }) => ({ name: title, value: id }));
+        // roles as a list will be used as a selection for the roleid in then inquirer
+        inquirer.prompt([
+            {
+                type: "list",
+                name: "roleid",
+                message: "Select corresponding role:  ",
+                choices: roles
+            }
+        ]).then((data) => {
+            arg.push(data.roleid);
+            console.log(arg);
+
+            const managerSql = `SELECT e.manager_id, CONCAT(m.first_name, ' ', m.last_name) 
+             AS manager 
+             FROM employee e 
+             LEFT JOIN role r
+             ON e.role_id = r.id
+             LEFT JOIN employee m
+             ON m.id = e.manager_id GROUP BY e.manager_id`;
+
+            connection.query(managerSql, async (err, data) => {
+                if (err) throw err;
+                const manager = data.map(({ manager, manager_id }) => ({
+                    name: manager,
+                    value: manager_id,
+                }));
+
+                inquirer.prompt([
+                    {
+                        type: "list",
+                        name: "managerid",
+                        message: "Who is the employee's manager?",
+                        choices: manager
+                    }
+                ]).then((data) => {
+                    const managerId = data.managerid
+                    arg.push(managerId);
+                    console.log(arg);
+
+                    const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`;
+                    connection.query(sql, arg, async (err, rows) => {
+                        if (err) throw err;
+                        console.log('\r\n');
+                        console.log(`Employee created successfully!`);
+                        const request = await queryEmployees();
+                        console.log('Employee list had been updated');
+                        const delay = setTimeout(main, 1000);
+                    });
+                });
+
+            });
+        });
+    });
+}
+
+
+
 async function main() {
+
+    console.log('\r\n');
+
     let mainMenuChoice = await inquirer.prompt(mainMenu);
 
     switch (mainMenuChoice.mainMenu) {
@@ -240,66 +301,26 @@ async function main() {
 
         case 'Add a Department':
 
-            const newDept = await inquirer.prompt(addDepartment);
-            const deptQuery = `INSERT INTO department (name) VALUES (?);`;
-            connection.query(deptQuery, newDept.department, (err, data) => {
-                if (err) throw err;
-                console.log(`New department created!`);
-                queryDepartments();
-            });
-
+            const add_Dept = await getDepartment();
             main();
             break;
 
         case 'Add a Role':
 
             const add_Role = await getRole();
-            main();
             break;
 
         case 'Add an Employee':
 
-            const employeeName = await inquirer.prompt(addEmployeeName);
-            let params = [employeeName.fname, employeeName.lname];
-
-            console.log(params);
-
-            const roleQuery = 'SELECT * FROM role';
-            connection.query(roleQuery, (err, data) => {
-                if (err) throw err;
-                const roles = data.map(({ title, id }) => ({ name: title, value: id }));
-                // roles as a list will be used as a selection for the roleid in then inquirer
-                inquirer.prompt([
-                    {
-                        type: "list",
-                        name: "roleid",
-                        message: "Select corresponding role:  ",
-                        choices: roles
-                    }
-                ]).then((data) => {
-                    params.push(data.roleid);
-                    console.log(params);
-                });
-
-
-
-
-
-            });
-
-
-
-
-            //const newEmployee = new Employee(employeeName.fname, employeeName.lname, employee.role, employee.manager);
-            //console.log(newEmployee);
-            main();
+            const add_Employee = await getEmployee();
             break;
 
         case 'Update an Employee Role':
             main();
             break;
+
         default:
-            console.log('\r\n\r\n\r\n\r\n\n\n\n\n\n\n')
+            console.log('\r\n');
             connection.end();
     }
 
