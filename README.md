@@ -38,7 +38,8 @@
     - .env
 - From the root directory go to the /db sub-directory.
     - Type 'mysql -u root -p' on the CLI or Terminal.
-    - Enter your mysql password.    
+    - Enter your mysql password.  
+    - Once successful, type in your CLI or Terminal "source schema.sql; source seeds.sql;
 - Type 'node index.js' to start under CLI or Terminal.
 
 
