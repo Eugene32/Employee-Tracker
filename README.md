@@ -58,7 +58,7 @@
 
 [logo]: src/demo_page.png "Team Generator demo"
 
-- Video link:  [Video](https://watch.screencastify.com/v/QAww3m0zcQC8nRVCLdV2)
+- Video link:  [Video](https://drive.google.com/file/d/1uAgbO0rktKATF7PovuqOLMrshbU4SxQk/view)
 
 ### Questions: 
 
