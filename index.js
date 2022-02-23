@@ -32,6 +32,7 @@ const queryDepartments = async () => {
         console.log('\r\n');  // Provides gap between displays
         console.table(rows);
         console.log('Press UP or DOWN key to continue.....');
+        main();
     });
 };
 
@@ -44,7 +45,7 @@ const queryRoles = async () => {
         console.log('\r\n');  // Provides gap between displays
         console.table(roles);
         console.log('Press UP or DOWN key to continue.....');
-
+        main();
     });
 };
 
@@ -65,6 +66,7 @@ const queryEmployees = async () => {
         console.log('\r\n');  // Provides gap between displays
         console.table(employees);
         console.log('Press UP or DOWN key to continue.....');
+        main();
 
     });
 
@@ -76,7 +78,6 @@ async function getDepartment() {
     connection.query(deptQuery, newDept.department, async (err, data) => {
         if (err) throw err;
         console.log(`New department created!`);
-        queryDepartments();
         main();
     });
 };
@@ -109,7 +110,8 @@ async function getRole() {
                 connection.query(query, arg, async (err, rows) => {
                     if (err) throw err;
                     console.log(`New role created!`);
-                    displayRoles();
+                    main();
+                    
                 });
             });
 
@@ -127,6 +129,7 @@ async function displayRoles() {
 async function getEmployee() {
 
     const employeeName = await inquirer.prompt(questionnaire.addEmployeeName);
+
     const arg = [employeeName.fname, employeeName.lname];
 
     const roleQuery = 'SELECT * FROM role';
@@ -177,7 +180,8 @@ async function getEmployee() {
                         if (err) throw err;
                         console.log('\r\n');
                         console.log(`Employee created successfully!`);
-                        displayEmployees();
+                        
+                        main();
                     });
                 });
 
@@ -228,7 +232,7 @@ const updateEmployee = () => {
                     connection.query(query, arg, async (err, data) => {
                         if (err) throw err;
                         console.log("Employee list updated..... ");
-                        displayEmployees();
+                        main();
                     });
                 });
             });
@@ -236,11 +240,6 @@ const updateEmployee = () => {
     });
 };
 
-async function displayEmployees() {
-    const request = await queryEmployees();
-    console.log('Employee list had been updated');
-    const delay = setTimeout(main, 1000);  // This is not a very good solution.
-};
 
 async function deleteEmployee() {
 
@@ -266,7 +265,8 @@ async function deleteEmployee() {
             connection.query(sql, employee, (err, data) => {
                 if (err) throw err;
                 console.log("Employee deleted successfully!");
-                displayEmployees();
+                
+                main();
             });
         });
     });
@@ -282,19 +282,19 @@ async function main() {
         case 'View All Departments':
 
             queryDepartments();
-            main();
+            
             break;
 
         case 'View All Roles':
 
             queryRoles();
-            main();
+            
             break;
 
         case 'View All Employees':
 
             queryEmployees();
-            main();
+            
             break;
 
         case 'Add a Department':
@@ -306,7 +306,7 @@ async function main() {
         case 'Add a Role':
 
             const add_Role = await getRole();
-            main();
+            
             break;
 
         case 'Add an Employee':
